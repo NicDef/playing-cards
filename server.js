@@ -88,6 +88,7 @@ io.on('connection', (socket) => {
 
 	socket.on('removeCard', (data) => {
 		socket.broadcast.emit('removeCard', data);
+		socket.emit("obtainCard", data)
 	});
 
 	socket.on('drawCard', () => {

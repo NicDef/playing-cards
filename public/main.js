@@ -61,26 +61,30 @@ const createCardInHand = (card) => {
 	footer.appendChild(div);
 
 	div.addEventListener('mouseup', (e) => {
-		if (e.button == 0 && !Array.from(document.body.children).includes(div)) {
-			div.style.position = 'absolute';
-			div.style.top = '0px';
-
-			document.body.appendChild(div);
-
-			const position = { x: div.style.left, y: div.style.top };
-			socket.emit('createCard', { id: div.id, position: position });
-
-			addDnD(div);
-		} else if (e.button == 2 && Array.from(document.body.children).includes(div)) {
-			div.style.position = 'relative';
-			div.style.top = '0px';
-			div.style.left = '0px';
-
-			footer.appendChild(div);
-
-			socket.emit('removeCard', { id: div.id });
-		}
+		mouseUp(e, div);
 	});
+};
+
+const mouseUp = (e, div) => {
+	if (e.button == 0 && !Array.from(document.body.children).includes(div)) {
+		div.style.position = 'absolute';
+		div.style.top = '0px';
+
+		document.body.appendChild(div);
+
+		const position = { x: div.style.left, y: div.style.top };
+		socket.emit('createCard', { id: div.id, position: position });
+
+		addDnD(div);
+	} else if (e.button == 2 && Array.from(document.body.children).includes(div)) {
+		div.style.position = 'relative';
+		div.style.top = '0px';
+		div.style.left = '0px';
+
+		footer.appendChild(div);
+
+		socket.emit('removeCard', { id: div.id });
+	}
 };
 
 const addDnD = (div) => {
@@ -131,6 +135,10 @@ socket.on('createCard', (data) => {
 	addDnD(div);
 
 	document.body.appendChild(div);
+
+	div.addEventListener('mouseup', (e) => {
+		mouseUp(e, div);
+	});
 });
 
 socket.on('updatePosition', (data) => {
@@ -140,7 +148,7 @@ socket.on('updatePosition', (data) => {
 	div.style.top = data.position.y;
 });
 
-socket.on('removeCard', (data) => {
+socket.on('obtainCard', (data) => {
 	const div = document.getElementById(data.id);
 
 	div.style.position = 'relative';
@@ -148,6 +156,11 @@ socket.on('removeCard', (data) => {
 	div.style.top = 0;
 
 	footer.appendChild(div);
+});
+
+socket.on('removeCard', (data) => {
+	const div = document.getElementById(data.id);
+	document.body.removeChild(div);
 });
 
 socket.on('drawCard', (data) => {
