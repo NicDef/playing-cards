@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="de">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Karten</title>
+
+		<script src="/socket.io/socket.io.js"></script>
+
+		<link rel="stylesheet" href="style.css" />
+	</head>
+	<body oncontextmenu="return false;">
+		<div>
+			<button onclick="start()">Neue Runde starten</button>
+			<label for="32Cards">32 Karten:</label>
+			<input id="32Cards" type="radio" name="chooseDeck" value="32" checked />
+			<label for="52Cards">52 Karten:</label>
+			<input id="52Cards" type="radio" name="chooseDeck" value="52" disabled />
+			<input type="number" name="chooseHand" id="chooseHand" min="1" value="5" />
+		</div>
+
+		<footer id="footer"></footer>
+
+		<script src="main.js"></script>
+	</body>
+</html>
