@@ -65,7 +65,7 @@ io.on('connection', (socket) => {
 
 		// Shuffle cards
 		const shuffled = fisherYatesShuffle([...deck]);
-		console.log(shuffled);
+		// console.log(shuffled);
 
 		// Give every player one hand
 		for (let i = 0; i <= connections.length - 1; i++) {
@@ -75,7 +75,7 @@ io.on('connection', (socket) => {
 					hand.push(shuffled[i + j]);
 					shuffled[i + j] = null;
 				}
-				console.log(hand);
+				// console.log(hand);
 				io.to(connections[i]).emit('hand', { hand: hand });
 			})(i);
 		}
@@ -103,7 +103,6 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('createCard', (data) => {
-		console.log([data]);
 		socket.broadcast.emit('createCard', [data]);
 	});
 
