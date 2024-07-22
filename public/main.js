@@ -82,8 +82,10 @@ const mouseUp = (e, div) => {
 	if (e.button == 0 && !Array.from(document.body.children).includes(div)) {
 		div.style.position = 'absolute';
 		div.style.top = '0px';
-
 		document.body.appendChild(div);
+
+		const playCardAudio = new Audio('./audio/place_card.wav');
+		playCardAudio.play();
 
 		const position = { x: div.style.left, y: div.style.top };
 		socket.emit('createCard', { id: div.id, position: position });
@@ -137,6 +139,7 @@ const addDnD = (div) => {
 
 socket.on('createCard', (data) => {
 	console.log(data);
+
 	for (let i = 0; i < data.length; i++) {
 		const div = document.createElement('div');
 		div.style.backgroundImage = `url(./svg/${data[i].id}.svg`;
@@ -164,6 +167,9 @@ socket.on('createCard', (data) => {
 			mouseUp(e, div);
 		});
 	}
+
+	const playCardAudio = new Audio('./audio/place_card.wav');
+	playCardAudio.play();
 });
 
 socket.on('updatePosition', (data) => {
@@ -183,11 +189,17 @@ socket.on('obtainCard', (data) => {
 	div.style.top = 0;
 
 	footer.appendChild(div);
+
+	const drawCardAudio = new Audio('./audio/draw_card.mp3');
+	drawCardAudio.play();
 });
 
 socket.on('removeCard', (data) => {
 	const div = document.getElementById(data.id);
 	document.body.removeChild(div);
+
+	const drawCardAudio = new Audio('./audio/draw_card.mp3');
+	drawCardAudio.play();
 });
 
 socket.on('drawCard', (card) => {
