@@ -1,10 +1,55 @@
 body {
 	margin: 0px;
 	overflow: hidden;
+	background-image: url('./img/background.jpg');
+	background-size: cover;
 }
 
 * {
 	box-sizing: border-box;
+	font-size: 24px;
+}
+
+.menu {
+	display: flex;
+	justify-content: right;
+	padding: 2px;
+}
+
+.menu * {
+	margin: 0px 2px 0px 2px;
+}
+
+#startBtn {
+	background-color: black;
+	color: white;
+	border: 1px black solid;
+	border-radius: 5px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 0px 10px 0px 10px;
+}
+#startBtn:hover {
+	cursor: pointer;
+	background-color: #0c0c0c;
+	border: 1px #0c0c0c solid;
+}
+
+select,
+input[type='number'] {
+	border: 1px black solid;
+	border-radius: 5px;
+}
+
+input[type='number'] {
+	/* width: 50px; */
+	text-align: center;
+}
+
+select,
+input[type='number']:focus {
+	outline: none;
 }
 
 .card {
@@ -21,19 +66,24 @@ body {
 	z-index: 0;
 	margin: 0 5px 0 5px;
 	background-size: contain;
+	border-radius: 7.5px;
+	filter: hue-rotate(0.1);
 }
 
 footer {
 	position: fixed;
 	background-color: whitesmoke;
 	width: 100vw;
-	height: 210px;
+	min-height: 250px;
 	bottom: 0;
-	border-top: 2px black solid;
+	border-top: 2px rgb(46, 21, 0) solid;
 	display: flex;
 	align-items: center;
 	justify-content: space-evenly;
-	overflow-x: scroll;
+	overflow-x: auto;
+	background-image: url('./img/wood.jpg');
+	background-size: cover;
+	background-position: 30% 50%;
 }
 
 .draw-pile {
@@ -41,6 +91,13 @@ footer {
 	position: absolute;
 	top: 50%;
 	right: 1%;
-	transform: translate(0%, calc(-50% - 210px + 100px));
+	transform: translate(0%, calc(-50% - 250px + 98px));
 	background-image: url('./svg/1B.svg');
+	font-size: larger;
+	font-weight: bolder;
+}
+
+.draw-pile:hover {
+	transform: translate(0%, calc(-50% - 250px + 98px)) scale(1.05);
+	transition: 200ms;
 }

@@ -22,6 +22,30 @@ const deck52 = ['A', 'K', 'D', 'B', '10', '9', '8', '7', '6', '5', '4', '3', '2'
 const connections = [];
 
 var drawPile = [];
+var deck;
+
+const fisherYatesShuffle = (deck) => {
+	for (var i = deck.length - 1; i > 0; i--) {
+		const swapIndex = Math.floor(Math.random() * (i + 1));
+		const currentCard = deck[i];
+		const cardToSwap = deck[swapIndex];
+		deck[i] = cardToSwap;
+		deck[swapIndex] = currentCard;
+	}
+
+	return deck;
+};
+
+const getDeck = (param) => {
+	switch (param) {
+		case 32:
+			return [...deck32];
+		case 52:
+			return [...deck52];
+		default:
+			return null;
+	}
+};
 
 io.on('connection', (socket) => {
 	console.log(`Player has connected`);
@@ -35,31 +59,12 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('start-game', (params) => {
-		var deck;
-		switch (params.deck) {
-			case 32:
-				deck = [...deck32];
-				break;
-			case 52:
-				deck = [...deck52];
-				break;
-			default:
-				return;
-		}
+		deck = getDeck(params.deck);
+
+		if (deck == null) return;
 
 		// Shuffle cards
-		const fisherYatesShuffle = (deck) => {
-			for (var i = deck.length - 1; i > 0; i--) {
-				const swapIndex = Math.floor(Math.random() * (i + 1));
-				const currentCard = deck[i];
-				const cardToSwap = deck[swapIndex];
-				deck[i] = cardToSwap;
-				deck[swapIndex] = currentCard;
-			}
-
-			return deck;
-		};
-		const shuffled = fisherYatesShuffle(deck);
+		const shuffled = fisherYatesShuffle([...deck]);
 		console.log(shuffled);
 
 		// Give every player one hand
@@ -92,7 +97,9 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('drawCard', () => {
-		if (drawPile.length == 0) return;
+		if (drawPile.length == 0) {
+			drawPile = fisherYatesShuffle([...deck]);
+		}
 
 		socket.emit('drawCard', drawPile[0]);
 

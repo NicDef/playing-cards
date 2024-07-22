@@ -5,19 +5,25 @@ const footer = document.getElementById('footer');
 let currentZIndex = 1;
 
 const start = () => {
-	const radios = document.querySelectorAll("input[type='radio']");
+	const options = document.querySelectorAll('option');
 	let cardValue;
 	currentZIndex = 1;
 
 	// Loop through the radio buttons to find the checked one
-	for (const radio of radios) {
-		if (radio.checked) {
-			cardValue = radio.value;
+	for (const option of options) {
+		if (option.selected) {
+			cardValue = option.value;
 			break;
 		}
 	}
 
-	const handValue = document.getElementById('chooseHand').value;
+	const chooseHand = document.getElementById('chooseHand');
+	if (chooseHand.value < 1) {
+		chooseHand.value = 1;
+		return;
+	}
+
+	const handValue = chooseHand.value;
 
 	socket.emit('start-game', { deck: parseInt(cardValue), hand: parseInt(handValue) });
 };
@@ -45,7 +51,7 @@ socket.on('hand', (data) => {
 	drawPile.classList.add('card');
 	drawPile.classList.add('draw-pile');
 	drawPile.id = 'drawPile';
-	drawPile.innerHTML = `Karte ziehen (${data.remaining})`;
+	drawPile.innerHTML = data.remaining;
 
 	drawPile.addEventListener('click', () => {
 		socket.emit('drawCard');
@@ -171,5 +177,5 @@ socket.on('drawCard', (card) => {
 });
 
 socket.on('updateDrawPile', (remaining) => {
-	document.getElementById('drawPile').innerHTML = `Karte ziehen (${remaining})`;
+	document.getElementById('drawPile').innerHTML = remaining;
 });
