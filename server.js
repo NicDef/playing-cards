@@ -88,12 +88,15 @@ io.on('connection', (socket) => {
 
 	socket.on('removeCard', (data) => {
 		socket.broadcast.emit('removeCard', data);
-		socket.emit("obtainCard", data)
+		socket.emit('obtainCard', data);
 	});
 
 	socket.on('drawCard', () => {
 		if (drawPile.length == 0) return;
-		socket.emit('drawCard', { card: drawPile[0], remaining: drawPile.length - 1 });
+
+		socket.emit('drawCard', drawPile[0]);
+
 		drawPile.shift();
+		io.emit('updateDrawPile', drawPile.length);
 	});
 });

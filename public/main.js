@@ -2,9 +2,12 @@ const socket = io();
 
 const footer = document.getElementById('footer');
 
+let currentZIndex = 1;
+
 const start = () => {
 	const radios = document.querySelectorAll("input[type='radio']");
 	let cardValue;
+	currentZIndex = 1;
 
 	// Loop through the radio buttons to find the checked one
 	for (const radio of radios) {
@@ -18,8 +21,6 @@ const start = () => {
 
 	socket.emit('start-game', { deck: parseInt(cardValue), hand: parseInt(handValue) });
 };
-
-let currentZIndex = 1;
 
 document.addEventListener('contextmenu', (event) => event.preventDefault());
 
@@ -144,6 +145,8 @@ socket.on('createCard', (data) => {
 socket.on('updatePosition', (data) => {
 	const div = document.getElementById(data.id);
 
+	div.style.zIndex = ++currentZIndex; // NOTE: Could lead to bug when max ZIndex value is reached // But I estimated that it would take more than just a day of moving the cards around
+
 	div.style.left = data.position.x;
 	div.style.top = data.position.y;
 });
@@ -163,8 +166,10 @@ socket.on('removeCard', (data) => {
 	document.body.removeChild(div);
 });
 
-socket.on('drawCard', (data) => {
-	createCardInHand(data.card);
+socket.on('drawCard', (card) => {
+	createCardInHand(card);
+});
 
-	document.getElementById('drawPile').innerHTML = `Karte ziehen (${data.remaining})`;
+socket.on('updateDrawPile', (remaining) => {
+	document.getElementById('drawPile').innerHTML = `Karte ziehen (${remaining})`;
 });
