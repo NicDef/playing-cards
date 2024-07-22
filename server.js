@@ -76,11 +76,26 @@ io.on('connection', (socket) => {
 					shuffled[i + j] = null;
 				}
 				console.log(hand);
-				io.to(connections[i]).emit('hand', { hand: hand, remaining: params.deck - connections.length * params.hand });
+				io.to(connections[i]).emit('hand', { hand: hand });
 			})(i);
 		}
 
 		drawPile = shuffled.filter((item) => item !== null);
+
+		// (optional): Reveal card(s)
+		if (params.reveal == 0) {
+			io.emit('updateDrawPile', drawPile.length);
+			return;
+		}
+
+		var toReveal = [];
+		for (let i = 0; i < params.reveal; i++) {
+			toReveal.push({ id: drawPile[0], position: { x: '', y: '' } });
+			drawPile.shift();
+		}
+
+		io.emit('createCard', toReveal);
+		io.emit('updateDrawPile', drawPile.length);
 	});
 
 	socket.on('updatePosition', (data) => {
@@ -88,7 +103,8 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('createCard', (data) => {
-		socket.broadcast.emit('createCard', data);
+		console.log([data]);
+		socket.broadcast.emit('createCard', [data]);
 	});
 
 	socket.on('removeCard', (data) => {

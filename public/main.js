@@ -12,20 +12,27 @@ const start = () => {
 	// Loop through the radio buttons to find the checked one
 	for (const option of options) {
 		if (option.selected) {
-			cardValue = option.value;
+			cardValue = parseInt(option.value);
 			break;
 		}
 	}
 
 	const chooseHand = document.getElementById('chooseHand');
-	if (chooseHand.value < 1) {
-		chooseHand.value = 1;
+	if (chooseHand.value < chooseHand.min) {
+		chooseHand.value = chooseHand.min;
 		return;
 	}
-
 	const handValue = chooseHand.value;
 
-	socket.emit('start-game', { deck: parseInt(cardValue), hand: parseInt(handValue) });
+	const chooseReveal = document.getElementById('chooseReveal');
+	if (chooseReveal.value == '') chooseReveal.value = 0;
+	if (chooseReveal.value < chooseReveal.min) {
+		chooseReveal.value = chooseReveal.min;
+		return;
+	}
+	const revealValue = chooseReveal.value;
+
+	socket.emit('start-game', { deck: cardValue, hand: handValue, reveal: revealValue });
 };
 
 document.addEventListener('contextmenu', (event) => event.preventDefault());
@@ -51,7 +58,6 @@ socket.on('hand', (data) => {
 	drawPile.classList.add('card');
 	drawPile.classList.add('draw-pile');
 	drawPile.id = 'drawPile';
-	drawPile.innerHTML = data.remaining;
 
 	drawPile.addEventListener('click', () => {
 		socket.emit('drawCard');
@@ -130,22 +136,34 @@ const addDnD = (div) => {
 };
 
 socket.on('createCard', (data) => {
-	const div = document.createElement('div');
-	div.style.backgroundImage = `url(./svg/${data.id}.svg`;
-	div.classList.add('card');
-	div.style.position = 'absolute';
-	div.id = data.id; // TODO: id's must be unique
+	console.log(data);
+	for (let i = 0; i < data.length; i++) {
+		const div = document.createElement('div');
+		div.style.backgroundImage = `url(./svg/${data[i].id}.svg`;
+		div.classList.add('card');
+		div.style.position = 'absolute';
+		div.id = data[i].id; // TODO: id's must be unique
 
-	div.style.left = data.position.x;
-	div.style.top = data.position.y;
+		if (data[i].position.x == '') {
+			div.style.left = `calc(10% + ${i * 150}px)`; // NOTE: 150px is just a random value due to the cards with
+		} else {
+			div.style.left = data[i].position.x;
+		}
 
-	addDnD(div);
+		if (data[i].position.y == '') {
+			div.style.top = document.getElementById('drawPile').getBoundingClientRect().top + 'px';
+		} else {
+			div.style.top = data[i].position.y;
+		}
 
-	document.body.appendChild(div);
+		addDnD(div);
 
-	div.addEventListener('mouseup', (e) => {
-		mouseUp(e, div);
-	});
+		document.body.appendChild(div);
+
+		div.addEventListener('mouseup', (e) => {
+			mouseUp(e, div);
+		});
+	}
 });
 
 socket.on('updatePosition', (data) => {
@@ -178,4 +196,8 @@ socket.on('drawCard', (card) => {
 
 socket.on('updateDrawPile', (remaining) => {
 	document.getElementById('drawPile').innerHTML = remaining;
+
+	// Play audio
+	const drawCardAudio = new Audio('./audio/draw_card.mp3');
+	drawCardAudio.play();
 });
