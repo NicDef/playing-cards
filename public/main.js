@@ -157,9 +157,18 @@ const addDnD = (div) => {
 
 		if (posX >= 0 && posX <= document.body.clientWidth - (div.getBoundingClientRect().right - div.getBoundingClientRect().left)) {
 			div.style.left = posX + 'px';
+		} else if (posX <= 0) {
+			div.style.left = '0px';
+		} else if (posX >= document.body.clientWidth - (div.getBoundingClientRect().right - div.getBoundingClientRect().left)) {
+			div.style.left = document.body.clientWidth - (div.getBoundingClientRect().right - div.getBoundingClientRect().left) + 'px';
 		}
+
 		if (posY >= 0 && posY <= document.body.clientHeight - (div.getBoundingClientRect().bottom - div.getBoundingClientRect().top)) {
 			div.style.top = posY + 'px';
+		} else if (posY <= 0) {
+			div.style.top = '0px';
+		} else if (posY >= document.body.clientHeight - (div.getBoundingClientRect().bottom - div.getBoundingClientRect().top)) {
+			div.style.top = document.body.clientHeight - (div.getBoundingClientRect().bottom - div.getBoundingClientRect().top) + 'px';
 		}
 
 		const newPosition = { x: div.style.left, y: div.style.top };
