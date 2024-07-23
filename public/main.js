@@ -2,6 +2,15 @@ const socket = io();
 
 const footer = document.getElementById('footer');
 
+footer.addEventListener('wheel', (e) => {
+	if (e.deltaY !== 0) {
+		e.preventDefault();
+
+		// Scroll horizontally
+		footer.scrollLeft += e.deltaY;
+	}
+});
+
 let currentZIndex = 1;
 
 const start = () => {
@@ -76,10 +85,14 @@ const createCardInHand = (card) => {
 	div.addEventListener('mouseup', (e) => {
 		mouseUp(e, div);
 	});
+
+	div.addEventListener('click', () => {
+		click(div);
+	});
 };
 
-const mouseUp = (e, div) => {
-	if (e.button == 0 && !Array.from(document.body.children).includes(div)) {
+const click = (div) => {
+	if (!Array.from(document.body.children).includes(div)) {
 		div.style.position = 'absolute';
 		div.style.top = '0px';
 		document.body.appendChild(div);
@@ -91,7 +104,11 @@ const mouseUp = (e, div) => {
 		socket.emit('createCard', { id: div.id, position: position });
 
 		addDnD(div);
-	} else if (e.button == 2 && Array.from(document.body.children).includes(div)) {
+	}
+};
+
+const mouseUp = (e, div) => {
+	if (e.button == 2 && Array.from(document.body.children).includes(div)) {
 		div.style.position = 'relative';
 		div.style.top = '0px';
 		div.style.left = '0px';
@@ -102,12 +119,21 @@ const mouseUp = (e, div) => {
 	}
 };
 
+let activeDraggable = null;
+let isDragging = false;
 const addDnD = (div) => {
 	let drag = false;
 	let shiftX, shiftY;
 	div.addEventListener('mousedown', (e) => {
 		if (e.button == 0 && Array.from(document.body.children).includes(div)) {
+			if (isDragging) return;
+
+			// Lock the element for the current user
+			socket.emit('lockElement', { id: div.id });
+
 			drag = true;
+			activeDraggable = div;
+			isDragging = true;
 
 			div.style.zIndex = ++currentZIndex;
 
@@ -115,24 +141,57 @@ const addDnD = (div) => {
 			shiftY = e.clientY - div.getBoundingClientRect().top;
 
 			div.style.cursor = 'grabbing';
+
+			document.addEventListener('mousemove', onMouseMove);
+			document.addEventListener('mouseup', onMouseUp);
 		} else drag = false;
 	});
 
-	document.addEventListener('mousemove', (e) => {
-		if (!drag) return;
+	const onMouseMove = (e) => {
+		if (!drag || activeDraggable !== div) return;
 
-		div.style.left = e.pageX - shiftX + 'px';
-		div.style.top = e.pageY - shiftY + 'px';
+		const posX = e.pageX - shiftX;
+		const posY = e.pageY - shiftY;
+
+		console.log(posY, div.getBoundingClientRect().bottom - div.getBoundingClientRect().top);
+
+		if (posX >= 0 && posX <= document.body.clientWidth - (div.getBoundingClientRect().right - div.getBoundingClientRect().left)) {
+			div.style.left = posX + 'px';
+		}
+		if (posY >= 0 && posY <= document.body.clientHeight - (div.getBoundingClientRect().bottom - div.getBoundingClientRect().top)) {
+			div.style.top = posY + 'px';
+		}
 
 		const newPosition = { x: div.style.left, y: div.style.top };
 
 		socket.emit('updatePosition', { id: div.id, position: newPosition });
+	};
+
+	const onMouseUp = (e) => {
+		if (drag && e.button == 0 && activeDraggable === div) {
+			drag = false;
+			activeDraggable = null;
+			isDragging = false;
+			div.style.cursor = 'grab';
+
+			// Unlock the element
+			socket.emit('unlockElement', { id: div.id });
+
+			document.removeEventListener('mousemove', onMouseMove);
+			document.removeEventListener('mouseup', onMouseUp);
+		}
+	};
+
+	// Listen for lock events from the server
+	socket.on('elementLocked', (data) => {
+		if (data.id === div.id) {
+			isDragging = true; // Prevent other users from dragging the element
+		}
 	});
 
-	div.addEventListener('mouseup', (e) => {
-		if (drag && e.button == 0) {
-			drag = false;
-			div.style.cursor = 'grab	';
+	socket.on('elementUnlocked', (data) => {
+		if (data.id === div.id) {
+			isDragging = false; // Allow other users to drag the element
 		}
 	});
 };
