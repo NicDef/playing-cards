@@ -234,6 +234,10 @@ socket.on('createCard', (data) => {
 		div.addEventListener('mouseup', (e) => {
 			mouseUp(e, div);
 		});
+
+		div.addEventListener('click', () => {
+			click(div);
+		});
 	}
 
 	const playCardAudio = new Audio('./audio/place_card.wav');
