@@ -149,7 +149,7 @@ io.on('connection', (socket) => {
 				}
 				drawPile = fisherYatesShuffle(newDeck);
 
-				socket.emit('deleteCards');
+				io.emit('deleteCards');
 			} catch (error) {
 				console.error('Error waiting for client responses:', error);
 			}

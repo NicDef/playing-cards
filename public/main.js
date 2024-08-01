@@ -147,8 +147,6 @@ document.addEventListener('mousemove', (e) => {
 });
 
 const mouseUp = (e, div) => {
-	console.log(Array.from(document.body.children));
-	console.log(div);
 	if (e.button == 2 && Array.from(document.body.children).includes(div)) {
 		// console.log(e);
 		div.style.position = 'relative';
@@ -167,7 +165,6 @@ const mouseUp = (e, div) => {
 
 const mouseDown = (e, div) => {
 	if (e.button == 0 && !Array.from(document.body.children).includes(div)) {
-		console.log(e);
 		selectedCard = div;
 		const clonedElem = div.cloneNode(true);
 		clonedElem.classList.add('ghost-card');
@@ -299,10 +296,6 @@ socket.on('createCard', (data) => {
 		div.addEventListener('mouseup', (e) => {
 			mouseUp(e, div);
 		});
-
-		div.addEventListener('click', () => {
-			click(div);
-		});
 	}
 
 	const playCardAudio = new Audio('./audio/place_card.wav');
@@ -361,6 +354,7 @@ socket.on('getCardsInHand', (data, callback) => {
 });
 
 socket.on('deleteCards', () => {
+	console.log('Deleting');
 	Array.from(document.body.children).forEach((elem) => {
 		if (elem.classList.contains('card') && !elem.classList.contains('draw-pile')) {
 			document.body.removeChild(elem);
