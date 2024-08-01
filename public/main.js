@@ -118,6 +118,7 @@ document.addEventListener('mouseup', (e) => {
 
 		card.style.position = 'absolute';
 		card.style.zIndex = ++currentZIndex;
+		console.log(currentZIndex);
 
 		const playCardAudio = new Audio('./audio/place_card.wav');
 		playCardAudio.play();
@@ -274,6 +275,7 @@ socket.on('createCard', (data) => {
 		div.style.backgroundImage = `url(./svg/${data[i].id}.svg`;
 		div.classList.add('card');
 		div.style.position = 'absolute';
+		div.style.zIndex = ++currentZIndex;
 		div.id = data[i].id; // TODO: id's must be unique
 
 		if (data[i].position.x == '') {
