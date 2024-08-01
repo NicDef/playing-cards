@@ -285,3 +285,20 @@ socket.on('updateDrawPile', (remaining) => {
 	const drawCardAudio = new Audio('./audio/draw_card.mp3');
 	drawCardAudio.play();
 });
+
+socket.on('getCardsInHand', (data, callback) => {
+	let cards = [];
+	Array.from(footer.children).forEach((elem) => {
+		cards.push(elem.id);
+	});
+
+	callback(cards);
+});
+
+socket.on('deleteCards', () => {
+	Array.from(document.body.children).forEach((elem) => {
+		if (elem.classList.contains('card') && !elem.classList.contains('draw-pile')) {
+			document.body.removeChild(elem);
+		}
+	});
+});

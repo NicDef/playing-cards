@@ -23,6 +23,7 @@ const connections = [];
 
 var drawPile = [];
 var deck;
+let clientsCards = [];
 
 const fisherYatesShuffle = (deck) => {
 	for (var i = deck.length - 1; i > 0; i--) {
@@ -111,9 +112,44 @@ io.on('connection', (socket) => {
 		socket.emit('obtainCard', data);
 	});
 
-	socket.on('drawCard', () => {
+	async function requestCardsInHandFromAllClients() {
+		clientsCards = [];
+
+		const clients = Array.from(io.sockets.sockets.values());
+		const requests = clients.map((socket) => {
+			return new Promise((resolve, reject) => {
+				socket.emit('getCardsInHand', null, (cards) => {
+					clientsCards.push(cards);
+					resolve();
+				});
+
+				setTimeout(() => {
+					reject(new Error(`Client ${socket.id} did not respond in time`));
+				}, 10000); // 10 seconds timeout, adjust as necessary
+			});
+		});
+
+		return Promise.all(requests);
+	}
+
+	socket.on('drawCard', async () => {
 		if (drawPile.length == 0) {
-			drawPile = fisherYatesShuffle([...deck]);
+			try {
+				await requestCardsInHandFromAllClients();
+
+				clientsCards = clientsCards.flat();
+
+				let newDeck = [...deck];
+				for (i = 0; i < clientsCards.length; i++) {
+					let idx = newDeck.indexOf(clientsCards[0]);
+					newDeck.splice(idx, 1);
+				}
+				drawPile = fisherYatesShuffle(newDeck);
+
+				socket.emit('deleteCards');
+			} catch (error) {
+				console.error('Error waiting for client responses:', error);
+			}
 		}
 
 		socket.emit('drawCard', drawPile[0]);
