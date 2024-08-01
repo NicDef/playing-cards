@@ -174,7 +174,6 @@ const mouseDown = (e, div) => {
 
 		clonedElem.style.left = e.pageX - shiftX1 + 'px';
 		clonedElem.style.top = e.pageY - shiftY1 + 'px';
-		clonedElem.style.zIndex = 2000000;
 
 		ghostCard = clonedElem;
 		document.body.appendChild(clonedElem);
