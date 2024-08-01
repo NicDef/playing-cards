@@ -23,7 +23,8 @@ const connections = [];
 
 var drawPile = [];
 var deck;
-let clientsCards = [];
+var clientsCards = [];
+const lockedElements = {};
 
 const fisherYatesShuffle = (deck) => {
 	for (var i = deck.length - 1; i > 0; i--) {
@@ -52,6 +53,8 @@ io.on('connection', (socket) => {
 	console.log(`Player has connected`);
 	connections.push(socket.id);
 	console.log(connections);
+
+	socket.emit('connection', connections.length);
 
 	// Handle disconnect
 	socket.on('disconnect', () => {
@@ -156,5 +159,19 @@ io.on('connection', (socket) => {
 
 		drawPile.shift();
 		io.emit('updateDrawPile', drawPile.length);
+	});
+
+	socket.on('lockElement', (data) => {
+		if (!lockedElements[data.id]) {
+			lockedElements[data.id] = socket.id;
+			io.emit('elementLocked', data);
+		}
+	});
+
+	socket.on('unlockElement', (data) => {
+		if (lockedElements[data.id] === socket.id) {
+			delete lockedElements[data.id];
+			io.emit('elementUnlocked', data);
+		}
 	});
 });

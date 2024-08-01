@@ -13,6 +13,9 @@ footer.addEventListener('wheel', (e) => {
 
 let currentZIndex = 1;
 
+// Display player count
+socket.on('connection', (playerCount) => [(document.getElementById('playerCount').innerHTML = `Spieler: ${playerCount}`)]);
+
 const start = () => {
 	const options = document.querySelectorAll('option');
 	let cardValue;
