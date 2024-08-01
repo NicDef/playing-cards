@@ -89,29 +89,67 @@ const createCardInHand = (card) => {
 		mouseUp(e, div);
 	});
 
-	div.addEventListener('click', () => {
-		click(div);
+	div.addEventListener('mousedown', (e) => {
+		mouseDown(e, div);
 	});
 };
 
-const click = (div) => {
-	if (!Array.from(document.body.children).includes(div)) {
-		div.style.position = 'absolute';
-		div.style.top = '0px';
-		document.body.appendChild(div);
+const isInBounce = (elem) => {
+	const posX = elem.style.left.split('px')[0];
+	const posY = elem.style.top.split('px')[0];
+
+	if (posX < 0 || posX > document.body.clientWidth - (elem.getBoundingClientRect().right - elem.getBoundingClientRect().left) || posY < 0 || posY > document.body.clientHeight - (elem.getBoundingClientRect().bottom - elem.getBoundingClientRect().top)) {
+		return false;
+	}
+
+	return true;
+};
+
+var selectedCard = null;
+var ghostCard = null;
+var shiftX1, shiftY1;
+document.addEventListener('mouseup', (e) => {
+	if (ghostCard == null) return;
+
+	if (e.button == 0 && isInBounce(ghostCard)) {
+		const card = ghostCard;
+
+		card.classList.remove('ghost-card');
+
+		card.style.position = 'absolute';
 
 		const playCardAudio = new Audio('./audio/place_card.wav');
 		playCardAudio.play();
 
-		const position = { x: div.style.left, y: div.style.top };
-		socket.emit('createCard', { id: div.id, position: position });
+		const position = { x: card.style.left, y: card.style.top };
+		socket.emit('createCard', { id: card.id, position: position });
 
-		addDnD(div);
+		card.addEventListener('mouseup', (e) => {
+			mouseUp(e, card);
+		});
+
+		addDnD(card);
+
+		footer.removeChild(selectedCard);
+		ghostCard = null;
+	} else {
+		document.body.removeChild(ghostCard);
+		ghostCard = null;
 	}
-};
+});
+
+document.addEventListener('mousemove', (e) => {
+	if (ghostCard == null) return;
+
+	ghostCard.style.left = e.pageX - shiftX1 + 'px';
+	ghostCard.style.top = e.pageY - shiftY1 + 'px';
+});
 
 const mouseUp = (e, div) => {
+	console.log(Array.from(document.body.children));
+	console.log(div);
 	if (e.button == 2 && Array.from(document.body.children).includes(div)) {
+		// console.log(e);
 		div.style.position = 'relative';
 		div.style.top = '0px';
 		div.style.left = '0px';
@@ -119,6 +157,28 @@ const mouseUp = (e, div) => {
 		footer.appendChild(div);
 
 		socket.emit('removeCard', { id: div.id });
+
+		div.addEventListener('mousedown', (e) => {
+			mouseDown(e, div);
+		});
+	}
+};
+
+const mouseDown = (e, div) => {
+	if (e.button == 0 && !Array.from(document.body.children).includes(div)) {
+		console.log(e);
+		selectedCard = div;
+		const clonedElem = div.cloneNode(true);
+		clonedElem.classList.add('ghost-card');
+
+		shiftX1 = e.clientX - div.getBoundingClientRect().left;
+		shiftY1 = e.clientY - div.getBoundingClientRect().top;
+
+		clonedElem.style.left = e.pageX - shiftX1 + 'px';
+		clonedElem.style.top = e.pageY - shiftY1 + 'px';
+
+		ghostCard = clonedElem;
+		document.body.appendChild(clonedElem);
 	}
 };
 

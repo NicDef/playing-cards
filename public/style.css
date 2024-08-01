@@ -72,6 +72,11 @@ input[type='number']:focus {
 	filter: hue-rotate(0.1);
 }
 
+.ghost-card {
+	position: absolute !important;
+	opacity: 0.3;
+}
+
 footer {
 	position: fixed;
 	background-color: whitesmoke;
