@@ -50,16 +50,17 @@ const getDeck = (param) => {
 };
 
 io.on('connection', (socket) => {
-	console.log(`Player has connected`);
+	console.log(`Player connected`);
 	connections.push(socket.id);
 	console.log(connections);
 
-	socket.emit('connection', connections.length);
+	io.emit('connections', connections.length);
 
 	// Handle disconnect
 	socket.on('disconnect', () => {
 		console.log(`Player disconnected`);
 		connections.splice(connections.indexOf(socket.id), 1);
+		io.emit('connections', connections.length);
 	});
 
 	socket.on('start-game', (params) => {
@@ -141,6 +142,8 @@ io.on('connection', (socket) => {
 				await requestCardsInHandFromAllClients();
 
 				clientsCards = clientsCards.flat();
+
+				if (clientsCards.length == deck.length) return;
 
 				let newDeck = [...deck];
 				for (i = 0; i < clientsCards.length; i++) {

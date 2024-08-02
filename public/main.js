@@ -14,7 +14,11 @@ footer.addEventListener('wheel', (e) => {
 let currentZIndex = 1;
 
 // Display player count
-socket.on('connection', (playerCount) => [(document.getElementById('playerCount').innerHTML = `Spieler: ${playerCount}`)]);
+var players;
+socket.on('connections', (playerCount) => {
+	document.getElementById('playerCount').innerHTML = `Spieler: ${playerCount}`;
+	players = playerCount;
+});
 
 const start = () => {
 	const options = document.querySelectorAll('option');
@@ -29,20 +33,26 @@ const start = () => {
 		}
 	}
 
-	const chooseHand = document.getElementById('chooseHand');
-	if (chooseHand.value < chooseHand.min) {
-		chooseHand.value = chooseHand.min;
-		return;
-	}
-	const handValue = chooseHand.value;
-
 	const chooseReveal = document.getElementById('chooseReveal');
 	if (chooseReveal.value == '') chooseReveal.value = 0;
 	if (chooseReveal.value < chooseReveal.min) {
 		chooseReveal.value = chooseReveal.min;
 		return;
+	} else if (chooseReveal.value > chooseReveal.max) {
+		chooseReveal.value = chooseReveal.max;
+		return;
 	}
-	const revealValue = chooseReveal.value;
+	const revealValue = parseInt(chooseReveal.value);
+
+	const chooseHand = document.getElementById('chooseHand');
+	if (chooseHand.value < chooseHand.min) {
+		chooseHand.value = chooseHand.min;
+		return;
+	} else if (parseInt(chooseHand.value) * players + revealValue > cardValue - 10) {
+		chooseHand.value = Math.floor((cardValue - 10 - revealValue) / players);
+		return;
+	}
+	const handValue = parseInt(chooseHand.value);
 
 	socket.emit('start-game', { deck: cardValue, hand: handValue, reveal: revealValue });
 };
@@ -323,6 +333,11 @@ socket.on('obtainCard', (data) => {
 
 	const drawCardAudio = new Audio('./audio/draw_card.mp3');
 	drawCardAudio.play();
+
+	// Scroll to card
+	footer.style.scrollBehavior = 'smooth';
+	footer.scrollLeft = footer.scrollWidth - footer.clientWidth;
+	footer.style.scrollBehavior = 'auto';
 });
 
 socket.on('removeCard', (data) => {
@@ -335,6 +350,11 @@ socket.on('removeCard', (data) => {
 
 socket.on('drawCard', (card) => {
 	createCardInHand(card);
+
+	// Scroll to card
+	footer.style.scrollBehavior = 'smooth';
+	footer.scrollLeft = footer.scrollWidth - footer.clientWidth;
+	footer.style.scrollBehavior = 'auto';
 });
 
 socket.on('updateDrawPile', (remaining) => {
