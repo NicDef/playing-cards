@@ -1,6 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
 :root {
 	--footer-height: 220px;
 	--card-height: 196px;
+	--border-radius: 5px;
 }
 
 body {
@@ -13,7 +16,13 @@ body {
 
 * {
 	box-sizing: border-box;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 400;
+	font-style: normal;
 	font-size: 24px;
+	-webkit-user-select: none; /* Safari */
+	-ms-user-select: none; /* IE 10 and IE 11 */
+	user-select: none; /* Standard syntax */
 }
 
 .menu {
@@ -31,7 +40,7 @@ body {
 	background-color: black;
 	color: white;
 	border: 1px black solid;
-	border-radius: 5px;
+	border-radius: var(--border-radius);
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -46,7 +55,7 @@ body {
 select,
 input[type='number'] {
 	border: 1px black solid;
-	border-radius: 5px;
+	border-radius: var(--border-radius);
 }
 
 input[type='number'] {
@@ -115,4 +124,13 @@ footer {
 
 .draw-pile:hover {
 	transform: translate(0%, calc(-50% - var(--footer-height) + var(--card-height) / 2)) scale(1.05);
+}
+
+#playerCount {
+	display: flex;
+	align-items: center;
+	background-color: #bfe5ff;
+	border-radius: var(--border-radius);
+	border: 1px solid black;
+	padding: 0px 10px 0px 10px;
 }

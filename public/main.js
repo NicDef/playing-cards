@@ -80,6 +80,7 @@ socket.on('hand', (data) => {
 	drawPile.classList.add('card');
 	drawPile.classList.add('draw-pile');
 	drawPile.id = 'drawPile';
+	drawPile.draggable = false;
 
 	drawPile.addEventListener('click', () => {
 		socket.emit('drawCard');
@@ -93,6 +94,7 @@ const createCardInHand = (card) => {
 	div.style.backgroundImage = `url(./svg/${card}.svg`;
 	div.classList.add('card');
 	div.id = card; // TODO: id's must be unique
+	div.draggable = false;
 	footer.appendChild(div);
 
 	div.addEventListener('mouseup', (e) => {
@@ -278,8 +280,6 @@ const addDnD = (div) => {
 };
 
 socket.on('createCard', (data) => {
-	console.log(data);
-
 	for (let i = 0; i < data.length; i++) {
 		const div = document.createElement('div');
 		div.style.backgroundImage = `url(./svg/${data[i].id}.svg`;
@@ -287,6 +287,7 @@ socket.on('createCard', (data) => {
 		div.style.position = 'absolute';
 		div.style.zIndex = ++currentZIndex;
 		div.id = data[i].id; // TODO: id's must be unique
+		div.draggable = false;
 
 		if (data[i].position.x == '') {
 			div.style.left = `calc(10% + ${i * 150}px)`; // NOTE: 150px is just a random value due to the cards with
